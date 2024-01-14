@@ -248,11 +248,11 @@ class changeUsername1 extends JFrame {
                     notFound = 1;
 
                     if (notFound == 1 && p.equals(Password) && oldname.equals(Oldusername)) {
-//                            String updateItemsQuery = "UPDATE cart SET username = ? WHERE username = ?";
-//                            PreparedStatement updateItemsStatement = connection1.prepareStatement(updateItemsQuery);
-//                            updateItemsStatement.setString(1, Newusername);
-//                            updateItemsStatement.setString(2, Oldusername);
-//                            updateItemsStatement.executeUpdate();
+                            String updateItemsQuery = "UPDATE cart SET username = ? WHERE username = ?";
+                            PreparedStatement updateItemsStatement = connection1.prepareStatement(updateItemsQuery);
+                            updateItemsStatement.setString(1, Newusername);
+                            updateItemsStatement.setString(2, Oldusername);
+                            updateItemsStatement.executeUpdate();
 
                         PreparedStatement updateStatement = connection.prepareStatement(updatequery);
                         updateStatement.setString(1, Newusername);
@@ -261,6 +261,12 @@ class changeUsername1 extends JFrame {
                         updateStatement.executeUpdate();
                         JOptionPane.showMessageDialog(new JFrame(), "Username Changed Successfully!");
                         oldUsername.setText(""); 
+                        
+                        LoginForm1 LoginFrame=new LoginForm1();
+                        LoginFrame.setVisible(true);
+                        LoginFrame.pack();
+                        LoginFrame.setLocationRelativeTo(null);
+                        dispose();
 
                     } else if (!oldname.equals(Oldusername)) {
                         JOptionPane.showMessageDialog(new JFrame(), "Invalid old username", "Error", JOptionPane.ERROR_MESSAGE);
