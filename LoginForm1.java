@@ -7,7 +7,7 @@ import java.sql.*;
 import javax.swing.*;
 
 class LoginForm1 extends JFrame {
-        private JTextField username;
+    private JTextField username;
     private JPasswordField password;
     private JButton Button_login;
     private JPanel Left;
@@ -295,7 +295,7 @@ try {
         System.out.println("Error closing resources: " + e.getMessage());
     }
 }
-            }
+            } 
         
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
                 SignUpForm1 SignUpFrame = new SignUpForm1();
