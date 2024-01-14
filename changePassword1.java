@@ -247,6 +247,12 @@ class changePassword1 extends JFrame {
                     updateStatement.executeUpdate();
                     JOptionPane.showMessageDialog(new JFrame(), "Password Changed Successfully!");
                     oldPassword.setText(""); // Clearing the old password field after successful change
+                    
+                    LoginForm1 LoginFrame=new LoginForm1();
+                    LoginFrame.setVisible(true);
+                    LoginFrame.pack();
+                    LoginFrame.setLocationRelativeTo(null);
+                    dispose();
                 } else {
                     JOptionPane.showMessageDialog(new JFrame(), "Invalid old password", "Error", JOptionPane.ERROR_MESSAGE);
                 }
