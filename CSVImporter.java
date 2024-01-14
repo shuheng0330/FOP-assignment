@@ -479,10 +479,14 @@ private void processCSVLineForSearch(String line, String searchText) {
 
     private void viewShoppingCart(String loggedInUsername) {
         UserData user = getUserData(loggedInUsername); 
-        ViewShoppingCart view = new ViewShoppingCart(loggedInUsername);
+        UIComponents view = new UIComponents(loggedInUsername);
         view.setUserData(user.getUsername());
         view.setVisible(true);
         view.setLocationRelativeTo(null);  
+//        ViewShoppingCart view = new ViewShoppingCart(loggedInUsername);
+//        view.setUserData(user.getUsername());
+//        view.setVisible(true);
+//        view.setLocationRelativeTo(null);  
     }
     private UserData getUserData(String username) {
         UserData userData = null;
