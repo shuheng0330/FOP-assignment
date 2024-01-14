@@ -426,7 +426,7 @@ public class ViewShoppingCart extends JFrame {
         
         confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedIndex = cartTable.getSelectedRow();
+            int selectedIndex = cartTable.getSelectedRow();
               if (selectedIndex != -1) {
             String itemCode = tableModel.getValueAt(selectedIndex, 0).toString();
             String itemName = tableModel.getValueAt(selectedIndex, 1).toString();
@@ -1173,7 +1173,6 @@ private UserData getUserData(String username) {
                     break;
                 }
             }
-
             double totalPrice = CalculateTotalPrice(selectedShops);
             displayShoppingResults(selectedShops, totalPrice);
         }
