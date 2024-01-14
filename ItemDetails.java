@@ -6,9 +6,11 @@ package pricetracker;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-public class ItemDetails {
+public class ItemDetails extends JFrame{
+ 
     public String[] findItemDetails(String searchItem) {
         String csvFile = "src/lookup_item.csv";
         String[] itemDetails = null;
