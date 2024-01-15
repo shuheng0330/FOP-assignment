@@ -10,7 +10,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class ItemDetails extends JFrame{
- 
     public String[] findItemDetails(String searchItem) {
         String csvFile = "src/lookup_item.csv";
         String[] itemDetails = null;
@@ -48,7 +47,7 @@ public class ItemDetails extends JFrame{
             String line;
 
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(","); // Assuming the CSV file uses a comma as the delimiter
+                String[] fields = line.split(","); 
 
                 if (fields.length > 1 && fields[1].equals(searchItemName)) {
                     itemDetails = fields;
