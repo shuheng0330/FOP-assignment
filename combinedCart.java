@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 class combinedCart extends JFrame {
-        private DefaultTableModel tableModel;
+    private DefaultTableModel tableModel;
     private JTable cartTable;
     private JTextField itemField;
     private JButton addButton;
@@ -30,14 +30,32 @@ class combinedCart extends JFrame {
     private UserData user;
     private String loggedInUsername;
 
-
     private JButton increaseButton;
     private JButton decreaseButton;
 
     public combinedCart() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+        JOptionPane.showMessageDialog(null, "Please ensure that you add no more than 10 items to your shopping cart. ^_^", "Limit Message", JOptionPane.INFORMATION_MESSAGE);
+
+        String[] itemActions = {"Modify item details", "View top 5 cheapest seller", "View price trend", "Add to shopping cart", "Back to main menu"};
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "Select an action:",
+                "Item Actions",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                itemActions,
+                itemActions[0] // Default selection is the first option
+        );
         setTitle("Shopping Cart");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 500);
+        setSize(1600, 500);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         tableModel = new DefaultTableModel(new String[]{"Item Code", "Item Name", "Unit", "Quantity"}, 0) {
@@ -70,10 +88,10 @@ class combinedCart extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(cartTable);
 
-        cartTable.getColumnModel().getColumn(0).setPreferredWidth(90);
-        cartTable.getColumnModel().getColumn(1).setPreferredWidth(500);
-        cartTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        cartTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+        cartTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+        cartTable.getColumnModel().getColumn(1).setPreferredWidth(850);
+        cartTable.getColumnModel().getColumn(2).setPreferredWidth(300);
+        cartTable.getColumnModel().getColumn(3).setPreferredWidth(200);
         cartTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         cartTable.setFocusable(false); // Prevents focus on table cells
 
@@ -88,12 +106,14 @@ class combinedCart extends JFrame {
         removeButton = new JButton("Remove");
         confirmButton = new JButton("Confirm");
         itemQuantityMap = new HashMap<>();
-        
+
         JButton backButton = new JButton("Back");
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Dispose the current JFrame (combinedCart)
                 dispose();
-                
+
+                // Create and display the CSVImporter frame
                 CSVImporter csvImporter = new CSVImporter();
                 csvImporter.setVisible(true);
                 csvImporter.displayMainMenu();
@@ -103,6 +123,11 @@ class combinedCart extends JFrame {
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (tableModel.getRowCount() >= 10) {
+                    JOptionPane.showMessageDialog(null, "You have reached the maximum amount of 10 items in the shopping cart", "Maximum Items Reached", JOptionPane.WARNING_MESSAGE);
+                    return; // Prevent further addition of items if the limit is reached
+                }
+
                 String newItem = itemField.getText().trim();
                 if (!newItem.isEmpty()) {
                     String[] itemDetails = findItemDetails(newItem);
@@ -146,15 +171,24 @@ class combinedCart extends JFrame {
 
         confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedIndex = cartTable.getSelectedRow();
-              if (selectedIndex != -1) {
-            String itemCode = tableModel.getValueAt(selectedIndex, 0).toString();
-            String itemName = tableModel.getValueAt(selectedIndex, 1).toString();
-            String unit = tableModel.getValueAt(selectedIndex, 2).toString();
-            int quantity = Integer.parseInt(tableModel.getValueAt(selectedIndex, 3).toString());
+                 int rowCount = tableModel.getRowCount();
 
-            storeInDatabase(itemCode, itemName, unit, quantity,user);
-        }
+                for (int i = 0; i < rowCount; i++) {
+                    String itemCode = tableModel.getValueAt(i, 0).toString();
+                    String itemName = tableModel.getValueAt(i, 1).toString();
+                    String unit = tableModel.getValueAt(i, 2).toString();
+                    int quantity = Integer.parseInt(tableModel.getValueAt(i, 3).toString());
+
+                    // Store the data in the MySQL database
+                    storeInDatabase(itemCode, itemName, unit, quantity, user);
+                }
+
+                // Clear the cart after storing items in the database
+                tableModel.setRowCount(0);
+                itemQuantityMap.clear();
+                updateCartTable();
+                
+                 JOptionPane.showMessageDialog(null, "Items added to cart successfully!");
             }
         });
         
@@ -222,24 +256,28 @@ class combinedCart extends JFrame {
             }
         });
         setVisible(true);
+        setSize(1600, 500);
+        setLocationRelativeTo(null);
     }
+
     public combinedCart(UserData user) {
         setTitle("Shopping Cart");
-        this.user=user;
+        this.user = user;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 500);
+        setSize(1600, 500);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         tableModel = new DefaultTableModel(new String[]{"Item Code", "Item Name", "Unit", "Quantity"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; 
+                return false; // This makes all cells in the table non-editable
             }
         };
         cartTable = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; 
+                return false; // This makes all cells in the table non-editable
             }
         };
         cartTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
@@ -260,12 +298,12 @@ class combinedCart extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(cartTable);
 
-        cartTable.getColumnModel().getColumn(0).setPreferredWidth(90);
-        cartTable.getColumnModel().getColumn(1).setPreferredWidth(500);
-        cartTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        cartTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+        cartTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+        cartTable.getColumnModel().getColumn(1).setPreferredWidth(850);
+        cartTable.getColumnModel().getColumn(2).setPreferredWidth(300);
+        cartTable.getColumnModel().getColumn(3).setPreferredWidth(200);
         cartTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        cartTable.setFocusable(false); 
+        cartTable.setFocusable(false); // Prevents focus on table cells
 
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BorderLayout());
@@ -278,24 +316,22 @@ class combinedCart extends JFrame {
         removeButton = new JButton("Remove");
         confirmButton = new JButton("Confirm");
         itemQuantityMap = new HashMap<>();
-        
+
         JButton backButton = new JButton("Back");
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Dispose the current JFrame (combinedCart)
                 dispose();
-                
-                // Create and display the CSVImporter frame
-                CSVImporter csvImporter = new CSVImporter();
-                csvImporter.setUserData(user.getUsername());
-                csvImporter.setVisible(true);
-                csvImporter.displayMainMenu();
             }
         });
         add(backButton, BorderLayout.SOUTH);
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (tableModel.getRowCount() >= 10) {
+                    JOptionPane.showMessageDialog(null, "You have reached the maximum amount of 10 items in the shopping cart", "Maximum Items Reached", JOptionPane.WARNING_MESSAGE);
+                    return; // Prevent further addition of items if the limit is reached
+                }
+
                 String newItem = itemField.getText().trim();
                 if (!newItem.isEmpty()) {
                     String[] itemDetails = findItemDetails(newItem);
@@ -339,22 +375,24 @@ class combinedCart extends JFrame {
 
         confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              int selectedIndex = cartTable.getSelectedRow();
-              if (selectedIndex != -1) {
-            String itemCode = tableModel.getValueAt(selectedIndex, 0).toString();
-            String itemName = tableModel.getValueAt(selectedIndex, 1).toString();
-            String unit = tableModel.getValueAt(selectedIndex, 2).toString();
-            int quantity = Integer.parseInt(tableModel.getValueAt(selectedIndex, 3).toString());
-            UserData user = getUserData(loggedInUsername);
-            if (user != null) {
-                storeInDatabase(itemCode, itemName, unit, quantity, user);
-            } else {
-               System.out.println("User data not found for username: " + loggedInUsername);
-             }
-        }
-            if (selectedIndex != -1) {
-                tableModel.removeRow(selectedIndex);
-        }
+                int rowCount = tableModel.getRowCount();
+
+                for (int i = 0; i < rowCount; i++) {
+                    String itemCode = tableModel.getValueAt(i, 0).toString();
+                    String itemName = tableModel.getValueAt(i, 1).toString();
+                    String unit = tableModel.getValueAt(i, 2).toString();
+                    int quantity = Integer.parseInt(tableModel.getValueAt(i, 3).toString());
+
+                    // Store the data in the MySQL database
+                    storeInDatabase(itemCode, itemName, unit, quantity, user);
+                }
+
+                // Clear the cart after storing items in the database
+                tableModel.setRowCount(0);
+                itemQuantityMap.clear();
+                updateCartTable();
+                
+                 JOptionPane.showMessageDialog(null, "Items added to cart successfully!");
             }
         });
         
@@ -422,11 +460,15 @@ class combinedCart extends JFrame {
             }
         });
         setVisible(true);
+        setSize(1600, 500);
+        setLocationRelativeTo(null);
+
     }
+
     public void setUserData(String username) {
         this.loggedInUsername = username;
-    }   
-    
+    }
+
     private UserData getUserData(String username) {
         UserData userData = null;
         Connection connection = null;
@@ -446,60 +488,61 @@ class combinedCart extends JFrame {
             if (resultSet.next()) {
                 String retrievedUsername = resultSet.getString("Username");
                 String retrievedPassword = resultSet.getString("Password");
-                String retrievedEmail=resultSet.getString("Email");
-                String retrievedContact=resultSet.getString("Contactno");
+                String retrievedEmail = resultSet.getString("Email");
+                String retrievedContact = resultSet.getString("Contactno");
 
                 // Create a UserData object to hold the retrieved data
-                userData = new UserData(retrievedUsername,retrievedPassword,retrievedEmail,retrievedContact);
+                userData = new UserData(retrievedUsername, retrievedPassword, retrievedEmail, retrievedContact);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-             try {
-        if (resultSet != null) {
-            resultSet.close();
-        }
-        if (statement != null) {
-            statement.close();
-        }
-        if (connection != null) {
-            connection.close();
-        }
-    } catch (SQLException e) {
-        System.out.println("Error closing resources: " + e.getMessage());
-    }
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error closing resources: " + e.getMessage());
+            }
         }
 
         return userData;
     }
+
     private void storeInDatabase(String itemCode, String itemName, String unit, int quantity, UserData user) {
-    String url = "jdbc:mysql://127.0.0.1:3306/combinedcart";
-    String usernamedb = "root";
-    String password = "Shuheng0330.";
+        String url = "jdbc:mysql://127.0.0.1:3306/combinedcart";
+        String usernamedb = "root";
+        String password = "Shuheng0330.";
 
-    try (Connection connection = DriverManager.getConnection(url, usernamedb, password)) {
-        String query = "INSERT INTO cart (username, itemCode, itemName, unit, quantity) VALUES (?, ?, ?, ?, ?)";
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        try (Connection connection = DriverManager.getConnection(url, usernamedb, password)) {
+            String query = "INSERT INTO cart (username, itemCode, itemName, unit, quantity) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
 
-        preparedStatement.setString(1, user.getUsername()); 
-        preparedStatement.setString(2, itemCode);
-        preparedStatement.setString(3, itemName);
-        preparedStatement.setString(4, unit);
-        preparedStatement.setInt(5, quantity);
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, itemCode);
+            preparedStatement.setString(3, itemName);
+            preparedStatement.setString(4, unit);
+            preparedStatement.setInt(5, quantity);
+            
+            preparedStatement.executeUpdate();
 
-        int rowsAffected = preparedStatement.executeUpdate();
-
-        if (rowsAffected > 0) {
-            JOptionPane.showMessageDialog(null, "Item added to cart successfully!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Failed to add item to cart.");
+//            int rowsAffected = preparedStatement.executeUpdate();
+//
+//            if (rowsAffected > 0) {
+//                JOptionPane.showMessageDialog(null, "Item added to cart successfully!");
+//            } else {
+//                JOptionPane.showMessageDialog(null, "Failed to add item to cart.");
+//            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-}
-
-    
 
     private void updateCartTable() {
         tableModel.setRowCount(0);
@@ -530,7 +573,7 @@ class combinedCart extends JFrame {
     }
 
     private String[] findItemDetails(String searchItem) {
-        String csvFile = "src/lookup_item.csv"; 
+        String csvFile = "src/lookup_item.csv";
         String[] itemDetails = null;
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
@@ -538,7 +581,7 @@ class combinedCart extends JFrame {
             boolean found = false;
 
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(","); 
+                String[] fields = line.split(",");
 
                 if (fields.length > 0 && fields[0].equals(searchItem)) {
                     found = true;
@@ -559,14 +602,14 @@ class combinedCart extends JFrame {
     }
 
     private String[] findItemDetailsByName(String searchItemName) {
-        String csvFile = "src/lookup_item.csv"; 
+        String csvFile = "src/lookup_item.csv";
         String[] itemDetails = null;
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             String line;
 
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(","); 
+                String[] fields = line.split(",");
 
                 if (fields.length > 1 && fields[1].equals(searchItemName)) {
                     itemDetails = fields;
