@@ -158,6 +158,7 @@ public class UIComponents extends JFrame {
                     } else {
                         itemQuantityMap.remove(selectedItem);
                         tableModel.removeRow(selectedIndex);
+                        deleteItemFromDatabase(selectedItem);
                     }
                     updateCartTable();
                 }
@@ -278,13 +279,15 @@ public class UIComponents extends JFrame {
         
             clearButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-        int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear all items?", "Clear Items", JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.YES_OPTION) {
-            clearItems();
-        }
-    }
+            int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear all items?", "Clear Items", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+            // Clear all items for the specific user
+            clearItems(loggedInUsername);
+            // Update the cart table
+            updateCartTable();
+        }}
 });
-
+            
         itemPanel.add(itemField);
         itemPanel.add(addButton);
         itemPanel.add(removeButton);
@@ -469,6 +472,7 @@ public class UIComponents extends JFrame {
                     } else {
                         itemQuantityMap.remove(selectedItem);
                         tableModel.removeRow(selectedIndex);
+                        deleteItemFromDatabase(selectedItem);
                     }
                     updateCartTable();
                 }
@@ -594,10 +598,13 @@ public class UIComponents extends JFrame {
             public void actionPerformed(ActionEvent e) {
         int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear all items?", "Clear Items", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-            clearItems();
-        }
-    }
+            // Clear all items for the specific user
+            clearItems(loggedInUsername);
+            // Update the cart table
+            updateCartTable();
+        }}
 });
+            
 
         itemPanel.add(itemField);
         itemPanel.add(addButton);
@@ -668,11 +675,37 @@ public class UIComponents extends JFrame {
         setVisible(true);
         fetchItemsForUser(loggedInUsername);
     }
-        private void clearItems() {
+        private void clearItems(String loggedInUsername) {
            itemQuantityMap.clear();
            tableModel.setRowCount(0);
            itemField.setText(""); // Clear the text field as well
+           
+      try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/combinedcart", "root", "Shuheng0330.")) {
+        String query = "DELETE FROM cart WHERE username = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, loggedInUsername);
+            int rowsAffected = preparedStatement.executeUpdate();
+            System.out.println(rowsAffected + " row(s) deleted.");
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+           
+        }
+    private void deleteItemFromDatabase(String selectedItem) {
+    try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/combinedcart", "root", "Shuheng0330.")) {
+        String query = "DELETE FROM cart WHERE itemName = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, selectedItem);
+            int rowsAffected = preparedStatement.executeUpdate();
+            System.out.println(rowsAffected + " row(s) deleted.");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+
 
     private void updateCartTable() {
         tableModel.setRowCount(0);
@@ -815,4 +848,3 @@ public class UIComponents extends JFrame {
         });
     }
 }
-
