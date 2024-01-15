@@ -5,6 +5,8 @@
 package pricetracker;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,6 +17,8 @@ import javax.swing.*;
  * @author User2022
  */
 public class CombinedChartPriceGUI extends JFrame {
+    private CombinedChartPriceGUI gui;
+
     private List<String[]> priceCatcherData;
     private List<String[]> lookupPremiseData;
     private List<String[]> lookupItemData;
@@ -25,16 +29,19 @@ public class CombinedChartPriceGUI extends JFrame {
     private final String DATE_COLUMN = "date";
 
     private JTextArea outputTextArea;
-    
+
     public List<String[]> getPriceCatcherData() {
         return this.priceCatcherData;
     }
+
     public List<String[]> getLookupPremiseData() {
         return this.lookupPremiseData;
     }
+
     public List<String[]> getLookupItemData() {
         return this.lookupItemData;
     }
+
     public CombinedChartPriceGUI(List<String[]> priceCatcherData, List<String[]> lookupPremiseData, List<String[]> lookupItemData) {
         this.priceCatcherData = priceCatcherData;
         this.lookupPremiseData = lookupPremiseData;
@@ -95,6 +102,17 @@ public class CombinedChartPriceGUI extends JFrame {
             outputTextArea.setText(chartText.toString());
         });
 
+        JButton backButton = new JButton("Back");
+        inputPanel.add(backButton);
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+               
+            }
+        });
+
         pack();
         setLocationRelativeTo(null);
     }
@@ -110,12 +128,12 @@ public class CombinedChartPriceGUI extends JFrame {
             List<String[]> lookupItemData = CSVDataReader.readCSV(lookupItemFilePath);
 
             CombinedChartPriceGUI gui = new CombinedChartPriceGUI(priceCatcherData, lookupPremiseData, lookupItemData);
-            gui.setSize(1600,500);
+            gui.setSize(1600, 500);
             gui.setLocationRelativeTo(null);
             gui.setVisible(true);
         });
     }
-    
+
     String getItemCode(String itemName, String unit) {
         for (String[] item : lookupItemData) {
             if (item[1].equalsIgnoreCase(itemName) && item[2].equalsIgnoreCase(unit)) {
@@ -126,7 +144,7 @@ public class CombinedChartPriceGUI extends JFrame {
     }
 
     String getScale(double price) {
-        double avprice=price-(int)price;
+        double avprice = price - (int) price;
         int scale = (int) (avprice / 0.10);
         StringBuilder scaleString = new StringBuilder();
         for (int i = 0; i < scale; i++) {
@@ -134,7 +152,7 @@ public class CombinedChartPriceGUI extends JFrame {
         }
         return scaleString.toString();
     }
-    
+
     static String formatDateString(String date, String inputDateFormat, String outputDateFormat) {
         Date parsedInputDate = null;
         try {
@@ -146,11 +164,10 @@ public class CombinedChartPriceGUI extends JFrame {
     }
 
     List<String> getUniqueDates() {
-        
-    Set<String> uniqueDates = new HashSet<>();
+
+        Set<String> uniqueDates = new HashSet<>();
         int dateColumnIndex = getColumnNameWithIndex(priceCatcherData).get(DATE_COLUMN);
 
-        // Iterate through the list and add values from the specified column to the set
         for (String[] row : priceCatcherData) {
             if (row.length > dateColumnIndex) {
                 if (!row[dateColumnIndex].equals(DATE_COLUMN)) {
@@ -174,17 +191,15 @@ public class CombinedChartPriceGUI extends JFrame {
             }
         }
 
-
         // Sort the Date objects
         dateList.sort(Comparator.naturalOrder());
         List<String> sortedDateString = new ArrayList<>();
         for (Date date : dateList) {
             sortedDateString.add(outputDateFormat.format(date));
         }
-            
+
         return sortedDateString;
     }
-
 
     Double getAveragePriceForItemCode(String date, String itemCode) {
         Map<String, Integer> joinedTablesColumnNameWithIndex = getColumnNameWithIndex(joinedTables);
@@ -198,7 +213,7 @@ public class CombinedChartPriceGUI extends JFrame {
                 .mapToDouble(row -> Double.parseDouble(row[joinedTablesColumnNameWithIndex.get("price")]))
                 .sum();
 
-        long distinctPremiseCodeCount= filteredData.stream()
+        long distinctPremiseCodeCount = filteredData.stream()
                 .map(row -> row[joinedTablesColumnNameWithIndex.get("premise_code")])
                 .distinct()
                 .count();
@@ -206,11 +221,10 @@ public class CombinedChartPriceGUI extends JFrame {
         return sumOfPrices / distinctPremiseCodeCount;
     }
 
-
     public Map<String, Integer> getColumnNameWithIndex(List<String[]> csvDataList) {
         Map<String, Integer> columnNameWithIndex = new HashMap<>();
         String[] csvHeader = csvDataList.get(0);
-        for (int i=0; i<csvHeader.length; i++) {
+        for (int i = 0; i < csvHeader.length; i++) {
             String columnName = csvHeader[i];
             columnNameWithIndex.put(columnName, i);
         }
