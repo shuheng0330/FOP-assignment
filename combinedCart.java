@@ -531,14 +531,6 @@ class combinedCart extends JFrame {
             preparedStatement.setInt(5, quantity);
             
             preparedStatement.executeUpdate();
-
-//            int rowsAffected = preparedStatement.executeUpdate();
-//
-//            if (rowsAffected > 0) {
-//                JOptionPane.showMessageDialog(null, "Item added to cart successfully!");
-//            } else {
-//                JOptionPane.showMessageDialog(null, "Failed to add item to cart.");
-//            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
