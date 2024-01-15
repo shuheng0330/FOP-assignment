@@ -62,7 +62,7 @@ class SignUpForm1 extends JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(500, 800));
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pricetracker/屏幕截图 2023-12-13 154926.png"))); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pricetracker/屏幕截图 2023-12-13 154926.png"))); 
         jLabel1.setText("jLabel1");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -89,28 +89,28 @@ class SignUpForm1 extends JFrame {
         jPanel3.setMinimumSize(new java.awt.Dimension(500, 800));
         jPanel3.setPreferredSize(new java.awt.Dimension(500, 800));
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 36)); 
         jLabel2.setText("Sign Up");
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         jLabel3.setText("Username");
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         jLabel4.setText("Password");
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         jLabel5.setText("Confirm Password");
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14));
         jLabel6.setText("Email");
 
-        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         jLabel7.setText("Contact no.");
 
         contactno.setMinimumSize(new java.awt.Dimension(64, 27));
 
         Button_signup.setBackground(new java.awt.Color(0, 102, 102));
-        Button_signup.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        Button_signup.setFont(new java.awt.Font("Segoe UI", 0, 14));
         Button_signup.setForeground(new java.awt.Color(255, 255, 255));
         Button_signup.setText("Sign Up");
         Button_signup.addActionListener(new java.awt.event.ActionListener() {
@@ -122,7 +122,7 @@ class SignUpForm1 extends JFrame {
 
         jLabel8.setText("Already have an account?");
 
-        jButton2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton2.setFont(new java.awt.Font("Segoe UI", 0, 14));
         jButton2.setForeground(new java.awt.Color(255, 102, 102));
         jButton2.setText("Log in");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -260,10 +260,10 @@ class SignUpForm1 extends JFrame {
                             JOptionPane.showMessageDialog(null, "New account has been created successfully!");
                         }
                     }
-                    resultSetContact.close(); // Close the resultSetContact
+                    resultSetContact.close(); 
                 }
             }
-            resultSetEmail.close(); // Close the resultSetEmail
+            resultSetEmail.close(); 
 
         } catch (Exception e) {
             System.out.println("Error!" + e.getMessage());
