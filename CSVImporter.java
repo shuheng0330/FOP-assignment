@@ -216,6 +216,8 @@ public class CSVImporter extends JFrame {
     }
 
     private void importData() {
+                JOptionPane.showMessageDialog(this, "Since you are only a user,so you are unable to import data. \nFor further information, please contact administrator Tay Qi Xiang \nGmail : tayqixiang@gmail.com\n", "Information", JOptionPane.ERROR_MESSAGE);
+
     }
 
     private void browseByCategories() {
