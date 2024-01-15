@@ -12,23 +12,26 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ItemVisualisation extends JFrame {
-        private List<String[]> priceCatcherData;
+    private List<String[]> priceCatcherData;
     private List<String[]> lookupPremiseData;
     private List<String[]> lookupItemData;
 
     private JTextField itemNameField;
     private JTextField unitField;
     private JTextArea outputArea;
-    
+
     public List<String[]> getPriceCatcherData() {
         return this.priceCatcherData;
     }
+
     public List<String[]> getLookupPremiseData() {
         return this.lookupPremiseData;
     }
+
     public List<String[]> getLookupItemData() {
         return this.lookupItemData;
     }
+
     public ItemVisualisation(List<String[]> priceCatcherData, List<String[]> lookupPremiseData, List<String[]> lookupItemData) {
         this.priceCatcherData = priceCatcherData;
         this.lookupPremiseData = lookupPremiseData;
@@ -109,7 +112,18 @@ public class ItemVisualisation extends JFrame {
                 outputArea.setText(result.toString());
             }
         });
-    
+
+        JButton backButton = new JButton("Back");
+        inputPanel.add(backButton);
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+
+            }
+        });
+
         pack();
         setLocationRelativeTo(null);
     }
@@ -150,6 +164,4 @@ public class ItemVisualisation extends JFrame {
             visualisation.setVisible(true);
         });
     }
-    }
-    
-
+}
