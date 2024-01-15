@@ -4,14 +4,19 @@
  */
 package pricetracker;
 
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 public class ShopDetails {
     public ArrayList<Double> findPremiseCodesByItemCode(String ItemCode) {
@@ -30,16 +35,13 @@ public class ShopDetails {
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
 
-                // fields[2] is location of item code
                 if (fields.length > 2 && fields[2].trim().equals(ItemCode.trim())) {
                     try {
-                        // Parse the premise code to double and add to the list
                         double premiseCode = Double.parseDouble(fields[1].trim());
                         if (!premiseCodes.contains(premiseCode)) {
                             premiseCodes.add(premiseCode);
                         }
                     } catch (NumberFormatException e) {
-                        // Handle parsing errors if the premise code is not a valid double
                         System.err.println("Invalid premise code format: " + fields[1].trim());
                     }
                 }
@@ -51,10 +53,9 @@ public class ShopDetails {
         return premiseCodes;
     }
 
-//    Method to find premise code in lookup_premise CSV to find premise in specific district enter by user
     public ArrayList<String> findPremiseCodesByDistrict(String district) {
         ArrayList<String> premiseCodes = new ArrayList<>();
-        String csvFile = "src/lookup_premise.csv"; 
+        String csvFile = "src/lookup_premise.csv";
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             String line;
@@ -62,11 +63,9 @@ public class ShopDetails {
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                 if (fields.length > 5 && fields[5].trim().equalsIgnoreCase(district.trim())) {
-                    premiseCodes.add(fields[0].trim()); // premise code is at index 0
+                    premiseCodes.add(fields[0].trim()); 
                 }
             }
-            //System.out.println("Premise codes found for district " + district + ": " + premiseCodes);
-            
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,7 +76,7 @@ public class ShopDetails {
 
         return premiseCodes;
     }
-    
+
     public String[] findPremiseDetailsByCode(String premiseCode) {
         String csvFile = "src/lookup_premise.csv";
         String[] premiseDetails = null;
@@ -86,7 +85,7 @@ public class ShopDetails {
             String line;
 
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(","); 
+                String[] fields = line.split(",");
 
                 if (fields.length > 0 && fields[0].equals(premiseCode)) {
                     premiseDetails = fields;
@@ -104,19 +103,19 @@ public class ShopDetails {
 
         return premiseDetails;
     }
-    
+
     public void showAvailablePremises(ArrayList<Double> premiseCodes) {
         ArrayList<String[]> premiseData = new ArrayList<>();
 
         String csvFile = "src/lookup_premise.csv";
-        boolean skipHeader = true; // Flag to skip the first line (header)
+        boolean skipHeader = true; 
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (skipHeader) {
                     skipHeader = false;
-                    continue; // Skip the header row
+                    continue; 
                 }
 
                 String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
@@ -126,13 +125,13 @@ public class ShopDetails {
                     try {
                         premiseCode = Double.parseDouble(fields[0].trim());
                     } catch (NumberFormatException e) {
-                        continue; // Skip lines that don't start with a number
+                        continue;
                     }
 
                     if (premiseCodes.contains(premiseCode)) {
                         premiseData.add(new String[]{
-                                fields[0].trim(), fields[1].trim(), fields[2].trim(),
-                                fields[3].trim(), fields[4].trim(), fields[5].trim()
+                            fields[0].trim(), fields[1].trim(), fields[2].trim(),
+                            fields[3].trim(), fields[4].trim(), fields[5].trim()
                         });
                     }
                 }
@@ -143,74 +142,89 @@ public class ShopDetails {
 
         displayPremiseDetails(premiseData);
     }
-    
+
     private void displayPremiseDetails(ArrayList<String[]> premiseData) {
-            DefaultTableModel premiseTableModel = new DefaultTableModel(
-                    new String[]{"Premise Code", "Premise", "Address", "Premise Type", "State", "District"}, 0);
+        DefaultTableModel premiseTableModel = new DefaultTableModel(
+                new String[]{"Premise Code", "Premise", "Address", "Premise Type", "State", "District"}, 0);
 
-            for (String[] data : premiseData) {
-                premiseTableModel.addRow(data);
-            }
-
-            JTable premiseTable = new JTable(premiseTableModel);
-            JScrollPane premiseScrollPane = new JScrollPane(premiseTable);
-
-            JOptionPane.showMessageDialog(null, premiseScrollPane, "Available shops to buy items in shopping cart", JOptionPane.INFORMATION_MESSAGE);
+        for (String[] data : premiseData) {
+            premiseTableModel.addRow(data);
         }
-    
-    
-    private static final String CSV_PRICECATHCER = "src/pricecatcher_2023-08.csv";
-    
-    public double getPriceFromCSV(String itemCode) {
-        double price = 0.0; // Default value if item code is not found
+
+        JTable premiseTable = new JTable(premiseTableModel);
+
+        TableColumnModel columnModel = premiseTable.getColumnModel();
+
+        columnModel.getColumn(0).setPreferredWidth(80);  
+        columnModel.getColumn(1).setPreferredWidth(300);
+        columnModel.getColumn(2).setPreferredWidth(900);
+        columnModel.getColumn(3).setPreferredWidth(200);
+        columnModel.getColumn(4).setPreferredWidth(70);
+        columnModel.getColumn(5).setPreferredWidth(70);
+
+        JScrollPane premiseScrollPane = new JScrollPane(premiseTable);
+        premiseScrollPane.setPreferredSize(new Dimension(1200, 500));  
         
+        JOptionPane.showMessageDialog(null, premiseScrollPane, "Available shops to buy items in cart", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static final String CSV_PRICECATHCER = "src/pricecatcher_2023-08.csv";
+
+    private static Set<String> processedPremiseCodes = new HashSet<>();
+
+    public List<String> getPremiseCodesFromCSV(String itemCode) {
+        List<String> premiseCodes = new ArrayList<>();
+        Set<String> processedPremiseCodes = new HashSet<>();
+
         try (BufferedReader br = new BufferedReader(new FileReader(CSV_PRICECATHCER))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(","); // Split CSV by comma
+                String[] fields = line.split(",");
                 if (fields.length > 0 && fields[2].trim().equals(itemCode.trim())) {
-                    price = Double.parseDouble(fields[3].trim()); 
-                    break; // Exit loop once found
+                    String premiseCode = fields[1].trim();
+                    // check if the same premiseCode is fetched before
+                    if (!processedPremiseCodes.contains(premiseCode)) {
+                        processedPremiseCodes.add(premiseCode);
+                        premiseCodes.add(premiseCode);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return premiseCodes;
+    }
+
+    public double getPriceFromCSV(String itemCode, String premiseCode) {
+        double price = 0.0; 
+
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_PRICECATHCER))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(","); 
+                if (fields.length >= 4 && fields[2].trim().equals(itemCode.trim()) && fields[1].trim().equals(premiseCode.trim())) {
+                    price = Double.parseDouble(fields[3].trim());
                 }
             }
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
         }
-        
+
         return price;
     }
-    
-    public String getPremiseCodeFromCSV(String itemCode) {
-        String premiseCode = ""; // Default value if item code is not found
-        
-        try (BufferedReader br = new BufferedReader(new FileReader(CSV_PRICECATHCER))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] fields = line.split(","); // Split CSV by comma 
-                if (fields.length > 0 && fields[2].trim().equals(itemCode.trim())) {
-                    premiseCode = fields[1].trim(); 
-                    break; // Exit loop once found
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception accordingly
-        }
-        
-        return premiseCode;
-    }
-    
+
     public String getPremiseFromCSV(double premiseCode) {
-        String premise = ""; // Default value if premise code is not found
+        String premise = ""; 
         String csvFile = "src/lookup_premise.csv";
         boolean skipHeader = true;
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             String line;
-                        System.out.println("PremiseCode: "+premiseCode);
             while ((line = br.readLine()) != null) {
                 if (skipHeader) {
                     skipHeader = false;
-                    continue; // Skip the header row
+                    continue; 
                 }
 
                 String[] fields = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
@@ -220,14 +234,11 @@ public class ShopDetails {
                     try {
                         code = Double.parseDouble(fields[0].trim());
                     } catch (NumberFormatException e) {
-                        continue; // Skip lines that don't start with a number
+                        continue; 
                     }
-                    System.out.println("field[0]"+fields[0].trim());
 
                     if (code == premiseCode) {
                         premise = fields[1].trim();
-                        System.out.println("premise get from csv: "+premise);   
-                        break;
                     }
                 }
             }
