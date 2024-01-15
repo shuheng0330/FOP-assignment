@@ -36,30 +36,29 @@ public class UIComponents extends JFrame {
     private JButton decreaseButton;
     private JButton confirmButton;
     private JButton checkOutButton;
+    private JButton clearButton;
+    private JButton backButton;
     private String loggedInUsername;
     private UserData user;
 
     
-    private String selectedItemCode;
-    private ArrayList<Double> availablePremises;
-    
-    
     public UIComponents(){
         setTitle("Shopping Cart");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 500);
+        setSize(1600, 500);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         tableModel = new DefaultTableModel(new String[]{"Item Code", "Item Name", "Unit", "Quantity"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // This makes all cells in the table non-editable
+                return false; 
             }
         };
         cartTable = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // This makes all cells in the table non-editable
+                return false; 
             }
         };
         cartTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
@@ -80,14 +79,15 @@ public class UIComponents extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(cartTable);
 
-        cartTable.getColumnModel().getColumn(0).setPreferredWidth(90);
-        cartTable.getColumnModel().getColumn(1).setPreferredWidth(500);
-        cartTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        cartTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+        cartTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+        cartTable.getColumnModel().getColumn(1).setPreferredWidth(1000);
+        cartTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+        cartTable.getColumnModel().getColumn(3).setPreferredWidth(200);
         cartTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        cartTable.setFocusable(false); // Prevents focus on table cells
-        cartTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); //select multiple item 
+        cartTable.setFocusable(false); 
+        cartTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); 
 
+        
 
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BorderLayout());
@@ -98,19 +98,29 @@ public class UIComponents extends JFrame {
         itemField = new JTextField(15);
         addButton = new JButton("Add");
         removeButton = new JButton("Remove");
-        confirmButton = new JButton("Confirm");//////
+        confirmButton = new JButton("Confirm");
         checkOutButton = new JButton("Check Out");
+        clearButton=new JButton("Clear");
         itemQuantityMap = new HashMap<>();
+        
+          JButton backButton = new JButton("Back");
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+        add(backButton, BorderLayout.SOUTH);
         
         ItemDetails itemDet = new ItemDetails();
         ShopDetails shopDet = new ShopDetails();
-        
+
+
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (tableModel.getRowCount() >= 10) {
                     JOptionPane.showMessageDialog(null, "You have reached the maximum amount of 10 items in the shopping cart", "Maximum Items Reached", JOptionPane.WARNING_MESSAGE);
-                    return; // Prevent further addition of items if the limit is reached
+                    return; 
                 }
 
                 String newItem = itemField.getText().trim();
@@ -172,90 +182,115 @@ public class UIComponents extends JFrame {
             tableModel.setValueAt(quantity, selectedIndex, 3);
 
         }
-            
-                JOptionPane.showMessageDialog(null, "All the items in your shopping cart is cleared now!");
             }
         });
 
         
         checkOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = cartTable.getSelectedRow(); // Get the selected row from the cartTable
-                if (selectedRow != -1) { // Ensure a row is selected
-                    selectedItemCode = tableModel.getValueAt(selectedRow, 0).toString(); // Get the selected item code
+                int[] selectedRows = cartTable.getSelectedRows(); 
+                List<String> selectedItemCodes = new ArrayList<>(); // To store item codes for all selected rows
 
-                    JTextField districtField = new JTextField(15);
-                    JPanel inputPanel = new JPanel();
-                    inputPanel.add(new JLabel("Enter District:"));
-                    inputPanel.add(districtField);
+                for (int selectedRow : selectedRows) {
+                    String selectedItemCode = tableModel.getValueAt(selectedRow, 0).toString();
+                    selectedItemCodes.add(selectedItemCode);
+                }
 
-                    int result = JOptionPane.showConfirmDialog(null, inputPanel, "Enter District", JOptionPane.OK_CANCEL_OPTION);
+                JTextField districtField = new JTextField(15);
+                JPanel inputPanel = new JPanel();
+                inputPanel.add(new JLabel("Enter District:"));
+                inputPanel.add(districtField);
 
-                    if (result == JOptionPane.OK_OPTION) {
-                        String district = districtField.getText();
-                        
-                        ArrayList<Double> premiseCodesByItem = shopDet.findPremiseCodesByItemCode(selectedItemCode);
-                        ArrayList<String> premiseCodesByDistrict = shopDet.findPremiseCodesByDistrict(district);
-                        
-                        //checking for debug
-                        System.out.println("Premise codes by item: " + premiseCodesByItem);
-                        System.out.println("Premise codes by district: " + premiseCodesByDistrict);
-                        
-                        // Convert premiseCodesByDistrict to ArrayList<Double>
-                            ArrayList<Double> districtCodes = new ArrayList<>();
-                            for (String code : premiseCodesByDistrict) {
-                                districtCodes.add(Double.parseDouble(code));
+                int result = JOptionPane.showConfirmDialog(null, inputPanel, "Enter District", JOptionPane.OK_CANCEL_OPTION);
+
+                if (result == JOptionPane.OK_OPTION) {
+                    String district = districtField.getText();
+
+                    ArrayList<Double> premiseCodesByItem = new ArrayList<>();
+                    for (String selectedItemCode : selectedItemCodes) {
+                        premiseCodesByItem.addAll(shopDet.findPremiseCodesByItemCode(selectedItemCode));
+                    }
+
+                    ArrayList<String> premiseCodesByDistrict = shopDet.findPremiseCodesByDistrict(district);
+
+                    ArrayList<Double> districtCodes = new ArrayList<>();
+                    for (String code : premiseCodesByDistrict) {
+                        districtCodes.add(Double.parseDouble(code));
+                    }
+
+                    // Filter the available premise based on item codes and district
+                    ArrayList<Double> availablePremises = new ArrayList<>(premiseCodesByItem);
+                    availablePremises.retainAll(districtCodes);
+//                       
+
+                    if (!availablePremises.isEmpty()) {
+                        shopDet.showAvailablePremises(availablePremises); 
+
+                        // Process items and create ItemsInfo instances
+                        List<ItemsInfo> itemsInfos = new ArrayList<>();
+
+                        for (int selectedRow : selectedRows) {
+                            String selectedItemCode = tableModel.getValueAt(selectedRow, 0).toString();
+                            String itemName = tableModel.getValueAt(selectedRow, 1).toString();
+                            String unit = tableModel.getValueAt(selectedRow, 2).toString();
+                            int quantity = Integer.parseInt(tableModel.getValueAt(selectedRow, 3).toString());
+
+                            // Fetch all information for the selected itemCode
+                            List<Double> prices = new ArrayList<>();
+                            List<String> shops = new ArrayList<>();
+                            List<String> premiseCodes = shopDet.getPremiseCodesFromCSV(selectedItemCode);
+
+                            for (String premiseCode : premiseCodes) {
+                                double parsePremiseCode = Double.parseDouble(premiseCode);
+                                if (availablePremises.contains(parsePremiseCode)) {
+                                    prices.add(shopDet.getPriceFromCSV(selectedItemCode, premiseCode));
+                                    shops.add(shopDet.getPremiseFromCSV(parsePremiseCode));
+
+                                    // Create an ItemsInfo instance and add it to the list
+                                    ItemsInfo itemsInfo = new ItemsInfo(
+                                            itemName,
+                                            premiseCode,
+                                            prices.get(prices.size() - 1),
+                                            shops.get(shops.size() - 1),
+                                            quantity,
+                                            unit
+                                    );
+                                    itemsInfos.add(itemsInfo);
+                                }
                             }
-                        //filter the available premise based on itemCode and district
-                            ArrayList<Double> availablePremises = new ArrayList<>(premiseCodesByItem);
-                            availablePremises.retainAll(districtCodes);
-                            
-                            if (!availablePremises.isEmpty()) {
-                                shopDet.showAvailablePremises(availablePremises);   // show available shop in that district that can buy items selected 
-                            
+                        }
 
-        List<ItemsInfo> itemsInfos = new ArrayList<>();
-        
+                        System.out.println("Finished processing items");                                          // checking debug statement
 
-// Iterate through the rows of the table model
-for (int i = 0; i < tableModel.getRowCount(); i++) {
-    // Get data from each column of the current row
-    String itemCode = tableModel.getValueAt(i, 0).toString();
-    String itemName = tableModel.getValueAt(i, 1).toString();
-    String unit = tableModel.getValueAt(i, 2).toString();
-    int quantity = Integer.parseInt(tableModel.getValueAt(i, 3).toString());
-
-    // Fetch price, premiseCode, premise from the CSV file using methods from ShopDetails
-    double price = shopDet.getPriceFromCSV(itemCode); // Implement this method to read price from the CSV file
-    String premiseCode = shopDet.getPremiseCodeFromCSV(itemCode); // Implement this method to read premiseCode from the CSV file
-    double parsePremiseCode = Double.parseDouble(premiseCode);
-    String shop = shopDet.getPremiseFromCSV(parsePremiseCode); // Implement this method to read shop from the CSV file
-
-    // Create a ItemsInfo instance and add it to the list
-    ItemsInfo itemsInfo = new ItemsInfo(itemName, premiseCode, price, shop, quantity, unit);
-    itemsInfos.add(itemsInfo);
-}
-
-// Call the findBestPackages method from the findBestPackages class
-List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos);
-
-                            } else {
-                            JOptionPane.showMessageDialog(null, "Some selected items are not available in the specified district.",
+                        // Call the findBestOption method from the findBestOption class to find the cheapest seller
+                        List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos);
+                        
+                    } else {
+                            JOptionPane.showMessageDialog(null, "Selected items are not available in the specified district.",
                                     "Items Not Available", JOptionPane.WARNING_MESSAGE);
                         }
-                        } else {}
+                        }
             
-                        } else {
+                         else {
                     JOptionPane.showMessageDialog(null, "Please select an item to proceed.", "No Item Selected", JOptionPane.WARNING_MESSAGE);
                 }}
         });
-                
+        
+            clearButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+        int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear all items?", "Clear Items", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            clearItems();
+        }
+    }
+});
 
         itemPanel.add(itemField);
         itemPanel.add(addButton);
         itemPanel.add(removeButton);
         itemPanel.add(checkOutButton);
         itemPanel.add(confirmButton);
+        itemPanel.add(clearButton);
         inputPanel.add(itemPanel, BorderLayout.WEST);
 
         JPanel buttonPanel = new JPanel();
@@ -322,19 +357,20 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
         setTitle("Shopping Cart");
         this.loggedInUsername=loggedInUsername;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 500);
+        setSize(1600, 500);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         tableModel = new DefaultTableModel(new String[]{"Item Code", "Item Name", "Unit", "Quantity"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // This makes all cells in the table non-editable
+                return false; 
             }
         };
         cartTable = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // This makes all cells in the table non-editable
+                return false; 
             }
         };
         cartTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
@@ -355,14 +391,15 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
 
         JScrollPane scrollPane = new JScrollPane(cartTable);
 
-        cartTable.getColumnModel().getColumn(0).setPreferredWidth(90);
-        cartTable.getColumnModel().getColumn(1).setPreferredWidth(500);
-        cartTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        cartTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+        cartTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+        cartTable.getColumnModel().getColumn(1).setPreferredWidth(1000);
+        cartTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+        cartTable.getColumnModel().getColumn(3).setPreferredWidth(200);
         cartTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        cartTable.setFocusable(false); // Prevents focus on table cells
-        cartTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); //select multiple item 
+        cartTable.setFocusable(false); 
+        cartTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
+        
 
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BorderLayout());
@@ -373,19 +410,28 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
         itemField = new JTextField(15);
         addButton = new JButton("Add");
         removeButton = new JButton("Remove");
-        confirmButton = new JButton("Confirm");//////
+        confirmButton = new JButton("Confirm");
         checkOutButton = new JButton("Check Out");
+        clearButton=new JButton("Clear");
         itemQuantityMap = new HashMap<>();
+        
+          JButton backButton = new JButton("Back");
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+        add(backButton, BorderLayout.SOUTH);
         
         ItemDetails itemDet = new ItemDetails();
         ShopDetails shopDet = new ShopDetails();
-        
+
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (tableModel.getRowCount() >= 10) {
                     JOptionPane.showMessageDialog(null, "You have reached the maximum amount of 10 items in the shopping cart", "Maximum Items Reached", JOptionPane.WARNING_MESSAGE);
-                    return; // Prevent further addition of items if the limit is reached
+                    return; 
                 }
 
                 String newItem = itemField.getText().trim();
@@ -446,90 +492,119 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
             }
             tableModel.setValueAt(quantity, selectedIndex, 3);
 
-        
-            }
+        }
+            
             }
         });
 
         
         checkOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = cartTable.getSelectedRow(); // Get the selected row from the cartTable
-                if (selectedRow != -1) { // Ensure a row is selected
-                    selectedItemCode = tableModel.getValueAt(selectedRow, 0).toString(); // Get the selected item code
+                int[] selectedRows = cartTable.getSelectedRows(); 
+                List<String> selectedItemCodes = new ArrayList<>(); 
 
-                    JTextField districtField = new JTextField(15);
-                    JPanel inputPanel = new JPanel();
-                    inputPanel.add(new JLabel("Enter District:"));
-                    inputPanel.add(districtField);
+                for (int selectedRow : selectedRows) {
+                    String selectedItemCode = tableModel.getValueAt(selectedRow, 0).toString();
+                    selectedItemCodes.add(selectedItemCode);
+                }
 
-                    int result = JOptionPane.showConfirmDialog(null, inputPanel, "Enter District", JOptionPane.OK_CANCEL_OPTION);
+                // Prompt user to enter district
+                JTextField districtField = new JTextField(15);
+                JPanel inputPanel = new JPanel();
+                inputPanel.add(new JLabel("Enter District:"));
+                inputPanel.add(districtField);
 
-                    if (result == JOptionPane.OK_OPTION) {
-                        String district = districtField.getText();
-                        
-                        ArrayList<Double> premiseCodesByItem = shopDet.findPremiseCodesByItemCode(selectedItemCode);
-                        ArrayList<String> premiseCodesByDistrict = shopDet.findPremiseCodesByDistrict(district);
-                        
-                        //checking for debug
-                        System.out.println("Premise codes by item: " + premiseCodesByItem);
-                        System.out.println("Premise codes by district: " + premiseCodesByDistrict);
-                        
-                        // Convert premiseCodesByDistrict to ArrayList<Double>
-                            ArrayList<Double> districtCodes = new ArrayList<>();
-                            for (String code : premiseCodesByDistrict) {
-                                      districtCodes.add(Double.parseDouble(code));
+                int result = JOptionPane.showConfirmDialog(null, inputPanel, "Enter District", JOptionPane.OK_CANCEL_OPTION);
+
+                if (result == JOptionPane.OK_OPTION) {
+                    String district = districtField.getText();
+
+                    // Fetch premise codes based on all selected item codes
+                    ArrayList<Double> premiseCodesByItem = new ArrayList<>();
+                    for (String selectedItemCode : selectedItemCodes) {
+                        premiseCodesByItem.addAll(shopDet.findPremiseCodesByItemCode(selectedItemCode));
+                    }
+
+                    ArrayList<String> premiseCodesByDistrict = shopDet.findPremiseCodesByDistrict(district);
+
+                    // Convert premiseCodesByDistrict to ArrayList<Double>
+                    ArrayList<Double> districtCodes = new ArrayList<>();
+                    for (String code : premiseCodesByDistrict) {
+                        districtCodes.add(Double.parseDouble(code));
+                    }
+
+                    // Filter the available premise based on item codes and district
+                    ArrayList<Double> availablePremises = new ArrayList<>(premiseCodesByItem);
+                    availablePremises.retainAll(districtCodes);
+
+                    if (!availablePremises.isEmpty()) {
+                        shopDet.showAvailablePremises(availablePremises); 
+
+                        // Process items and create ItemsInfo instances
+                        List<ItemsInfo> itemsInfos = new ArrayList<>();
+
+                        for (int selectedRow : selectedRows) {
+                            String selectedItemCode = tableModel.getValueAt(selectedRow, 0).toString();
+                            String itemName = tableModel.getValueAt(selectedRow, 1).toString();
+                            String unit = tableModel.getValueAt(selectedRow, 2).toString();
+                            int quantity = Integer.parseInt(tableModel.getValueAt(selectedRow, 3).toString());
+
+                            // Fetch all information for the selected itemCode
+                            List<Double> prices = new ArrayList<>();
+                            List<String> shops = new ArrayList<>();
+                            List<String> premiseCodes = shopDet.getPremiseCodesFromCSV(selectedItemCode);
+
+                            for (String premiseCode : premiseCodes) {
+                                double parsePremiseCode = Double.parseDouble(premiseCode);
+                                if (availablePremises.contains(parsePremiseCode)) {
+                                    prices.add(shopDet.getPriceFromCSV(selectedItemCode, premiseCode));
+                                    shops.add(shopDet.getPremiseFromCSV(parsePremiseCode));
+
+                                    // Create an ItemsInfo instance and add it to the list
+                                    ItemsInfo itemsInfo = new ItemsInfo(
+                                            itemName,
+                                            premiseCode,
+                                            prices.get(prices.size() - 1),
+                                            shops.get(shops.size() - 1),
+                                            quantity,
+                                            unit
+                                    );
+                                    itemsInfos.add(itemsInfo);
+                                }
                             }
-                        //filter the available premise based on itemCode and district
-                            ArrayList<Double> availablePremises = new ArrayList<>(premiseCodesByItem);
-                            availablePremises.retainAll(districtCodes);
-                            
-                            if (!availablePremises.isEmpty()) {
-                                shopDet.showAvailablePremises(availablePremises);   // show available shop in that district that can buy items selected 
-                            
+                        }
 
-        List<ItemsInfo> itemsInfos = new ArrayList<>();
-        
+                        System.out.println("Finished processing items");                                          // checking debug statement
 
-// Iterate through the rows of the table model
-for (int i = 0; i < tableModel.getRowCount(); i++) {
-    // Get data from each column of the current row
-    String itemCode = tableModel.getValueAt(i, 0).toString();
-    String itemName = tableModel.getValueAt(i, 1).toString();
-    String unit = tableModel.getValueAt(i, 2).toString();
-    int quantity = Integer.parseInt(tableModel.getValueAt(i, 3).toString());
-
-    // Fetch price, premiseCode, premise from the CSV file using methods from ShopDetails
-    double price = shopDet.getPriceFromCSV(itemCode); // Implement this method to read price from the CSV file
-    String premiseCode = shopDet.getPremiseCodeFromCSV(itemCode); // Implement this method to read premiseCode from the CSV file
-    double parsePremiseCode = Double.parseDouble(premiseCode);
-    String shop = shopDet.getPremiseFromCSV(parsePremiseCode); // Implement this method to read shop from the CSV file
-
-    // Create a ItemsInfo instance and add it to the list
-    ItemsInfo itemsInfo = new ItemsInfo(itemName, premiseCode, price, shop, quantity, unit);
-    itemsInfos.add(itemsInfo);
-}
-
-// Call the findBestPackages method from the findBestPackages class
-List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos);
-
-                            } else {
-                            JOptionPane.showMessageDialog(null, "Some selected items are not available in the specified district.",
+                        // Call the findBestOption method from the findBestOption class to find the cheapest seller
+                        List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos);
+                        
+                    } else {
+                            JOptionPane.showMessageDialog(null, "Selected items are not available in the specified district.",
                                     "Items Not Available", JOptionPane.WARNING_MESSAGE);
                         }
-                        } else {}
+                        }
             
-                        } else {
+                         else {
                     JOptionPane.showMessageDialog(null, "Please select an item to proceed.", "No Item Selected", JOptionPane.WARNING_MESSAGE);
                 }}
         });
-                
+        
+            clearButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+        int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear all items?", "Clear Items", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            clearItems();
+        }
+    }
+});
 
         itemPanel.add(itemField);
         itemPanel.add(addButton);
         itemPanel.add(removeButton);
         itemPanel.add(checkOutButton);
         itemPanel.add(confirmButton);
+        itemPanel.add(clearButton);
         inputPanel.add(itemPanel, BorderLayout.WEST);
 
         JPanel buttonPanel = new JPanel();
@@ -591,9 +666,14 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
             }
         });
         setVisible(true);
-        fetchItemsForUser(loggedInUsername);  // Fetch and display items for the logged-in user
-
+        fetchItemsForUser(loggedInUsername);
     }
+        private void clearItems() {
+           itemQuantityMap.clear();
+           tableModel.setRowCount(0);
+           itemField.setText(""); // Clear the text field as well
+        }
+
     private void updateCartTable() {
         tableModel.setRowCount(0);
         for (Map.Entry<String, Integer> entry : itemQuantityMap.entrySet()) {
@@ -607,14 +687,23 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
                 tableModel.addRow(new Object[]{itemCode, itemName, unit, quantity});
             }
         }
+    }   
+       
+    ArrayList<String> getItemsFromTableModel() {
+        ArrayList<String> itemList = new ArrayList<>();
+        int rowCount = tableModel.getRowCount();
+
+        for (int i = 0; i < rowCount; i++) {
+            String itemCode = tableModel.getValueAt(i, 0).toString();
+            itemList.add(itemCode);
+        }
+        return itemList; 
     }
     public void setUserData(String username) {
         this.loggedInUsername = username;
     }
     private void fetchItemsForUser(String loggedInUsername) {
         itemQuantityMap = new HashMap<>();
-        // Connect to your database and fetch items for the specified user
-        // Modify the database connection details as needed
 
         String url = "jdbc:mysql://127.0.0.1:3306/combinedcart";
         String usernamedb = "root";
@@ -642,7 +731,7 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
         }
     
     }
-    
+
     private UserData getUserData(String username) {
                         UserData userData = null;
         Connection connection = null;
@@ -664,11 +753,9 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
                 String retrievedPassword = resultSet.getString("Password");
                 String retrievedEmail=resultSet.getString("Email");
                 String retrievedContact=resultSet.getString("Contactno");
-                // You can retrieve other user information similarly
 
                 // Create a UserData object to hold the retrieved data
                 userData = new UserData(retrievedUsername,retrievedPassword,retrievedEmail,retrievedContact);
-                // Add other retrieved information to the UserData object
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -717,19 +804,8 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
     }
             }
 
-       
-    ArrayList<String> getItemsFromTableModel() {
-        ArrayList<String> itemList = new ArrayList<>();
-        int rowCount = tableModel.getRowCount();
 
-        for (int i = 0; i < rowCount; i++) {
-            String itemCode = tableModel.getValueAt(i, 0).toString();
-            itemList.add(itemCode);
-        }
-        return itemList; 
-    }
-
-          public static void main(String args[]) {
+    public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 UIComponents view=new UIComponents();
@@ -739,3 +815,4 @@ List<Map<String, Object>> bestOption = findBestOption.findBestOption(itemsInfos)
         });
     }
 }
+
