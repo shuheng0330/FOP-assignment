@@ -62,7 +62,7 @@ class SignUpForm1 extends JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(500, 800));
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pricetracker/屏幕截图 2023-12-13 154926.png"))); 
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pricetracker/signup 2023-12-13 154926.png"))); 
         jLabel1.setText("jLabel1");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
