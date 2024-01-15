@@ -128,7 +128,7 @@ class LoginForm1 extends JFrame {
         Right.setBackground(new java.awt.Color(255, 255, 255));
         Right.setPreferredSize(new java.awt.Dimension(500, 800));
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pricetracker/屏幕截图 2023-12-14 104222.png"))); 
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pricetracker/sign in 2023-12-14 104222.png"))); 
 
         jLabel2.setFont(new java.awt.Font("Poor Richard", 1, 24)); 
         jLabel2.setText("Welcome To Price Tracker!");
