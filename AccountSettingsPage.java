@@ -31,7 +31,7 @@ public class AccountSettingsPage extends JFrame {
     private JButton Button_changeUsername;
     private JButton Button_changePassword;
     private JButton Button_back;
-    private JButton Button_removeAccount; // Add the new button
+    private JButton Button_removeAccount; 
 
     public AccountSettingsPage() {
         setTitle("Account Settings");
@@ -96,37 +96,37 @@ public class AccountSettingsPage extends JFrame {
         rightPanel.setBackground(new java.awt.Color(204, 204, 255));
         rightPanel.setPreferredSize(new java.awt.Dimension(400, 500));
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 36)); 
         jLabel2.setText("Account Settings");
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); 
         jLabel3.setText("Username");
 
         jTextField1.setText("jTextField1");
 
-        usernameLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        usernameLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         usernameLabel.setText("john");
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); 
         jLabel5.setText("Password");
 
-        passwordLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        passwordLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         passwordLabel.setText("123");
 
-        jLabel7.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); 
         jLabel7.setText("Email");
 
-        emailLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        emailLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         emailLabel.setText("gmail.com");
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); 
         jLabel9.setText("Contact no");
 
-        contactNoLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        contactNoLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         contactNoLabel.setText("12345");
 
         Button_changeUsername.setBackground(new java.awt.Color(153, 204, 255));
-        Button_changeUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        Button_changeUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         Button_changeUsername.setText("Change username");
         Button_changeUsername.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -135,7 +135,7 @@ public class AccountSettingsPage extends JFrame {
         });
 
         Button_changePassword.setBackground(new java.awt.Color(153, 204, 255));
-        Button_changePassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        Button_changePassword.setFont(new java.awt.Font("Segoe UI", 0, 14));
         Button_changePassword.setText("Change password");
         Button_changePassword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -144,7 +144,7 @@ public class AccountSettingsPage extends JFrame {
         });
 
         Button_back.setBackground(new java.awt.Color(153, 204, 255));
-        Button_back.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        Button_back.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         Button_back.setText("Back");
         Button_back.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -153,7 +153,7 @@ public class AccountSettingsPage extends JFrame {
         });
 
         Button_removeAccount.setBackground(new java.awt.Color(153, 204, 255));
-        Button_removeAccount.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        Button_removeAccount.setFont(new java.awt.Font("Segoe UI", 0, 14)); 
         Button_removeAccount.setText("Remove account");
         Button_removeAccount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -270,12 +270,13 @@ public class AccountSettingsPage extends JFrame {
     }  
 
     private void Button_backActionPerformed(java.awt.event.ActionEvent evt) {
-            CSVImporter importer = new CSVImporter();
-            importer.setUserData(user.getUsername());
-            importer.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            importer.setVisible(true);
-            importer.displayMainMenu();
-            dispose();
+        dispose();
+//            CSVImporter importer = new CSVImporter();
+//            importer.setUserData(user.getUsername());
+//            importer.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//            importer.setVisible(true);
+//            importer.displayMainMenu();
+            
     }
 
     private void Button_changeUsernameActionPerformed(java.awt.event.ActionEvent evt) {
@@ -321,7 +322,7 @@ public class AccountSettingsPage extends JFrame {
             e.printStackTrace();
         }
             
-      try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/combinedcart" , "root", "Shuheng0330.")) {
+      try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/javafx-video" , "root", "Shuheng0330.")) {  
             String query = "DELETE FROM cart WHERE username = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, username);
@@ -348,7 +349,6 @@ public class AccountSettingsPage extends JFrame {
 //    private String loggedInPassword;
 //    private String loggedInEmail;
 //    private String loggedInContactno;
-//    private ChartPrice chartPrice;
 //    private UserData user;
 //
 //    private JPanel jPanel1;
@@ -607,7 +607,7 @@ public class AccountSettingsPage extends JFrame {
 //    }  
 //
 //    private void Button_backActionPerformed(java.awt.event.ActionEvent evt) {
-//            CSVImporter importer = new CSVImporter(chartPrice);
+//            CSVImporter importer = new CSVImporter();
 //            importer.setUserData(user.getUsername());
 //            importer.setExtendedState(JFrame.MAXIMIZED_BOTH);
 //            importer.setVisible(true);
