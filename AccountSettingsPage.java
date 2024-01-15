@@ -267,11 +267,6 @@ public class AccountSettingsPage extends JFrame {
 
     private void Button_backActionPerformed(java.awt.event.ActionEvent evt) {
         dispose();
-//            CSVImporter importer = new CSVImporter();
-//            importer.setUserData(user.getUsername());
-//            importer.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//            importer.setVisible(true);
-//            importer.displayMainMenu();
             
     }
 
